@@ -1,0 +1,78 @@
+---
+# file: group_vars/all
+centos_yum_mirror: mirrors.ustc.edu.cn
+pypi_mirror:
+  args: '--upgrade --index-url https://mirrors.ustc.edu.cn/pypi/web/simple'
+apache_mirror:
+  protocol: 'https'
+  url: 'mirrors.ustc.edu.cn'
+hadoop_env:
+  hadoop_home: "/opt/hadoop"
+  hadoop_conf_dir: "/opt/hadoop/etc/hadoop"
+sqoop_env:
+  sqoop_home: "/opt/sqoop"
+  # Config files
+core_config:
+- name: "fs.defaultFS"
+  value: "hdfs://{{ groups['namenode'][0] }}:9820"
+- name: "hadoop.http.staticuser.user"
+  value: "root"
+- name: "hadoop.proxyuser.hue.hosts"
+  value: "*"
+- name: "hadoop.proxyuser.hue.groups"
+  value: "*"
+- name: "hadoop.proxyuser.root.groups"
+  value: "*"
+- name: "hadoop.proxyuser.root.hosts"
+  value: "*"
+- name: "nfs.superuser"
+  value: "root"
+- name: "nfs.exports.allowed.hosts"
+  value: "* rw"
+- name: "nfs.export.point"
+  value: "/"
+hdfs_config:
+- name: "dfs.replication"
+  value: "3"
+- name: "dfs.namenode.name.dir"
+  value: "file:///opt/hadoop/dfs/name"
+- name: "dfs.datanode.data.dir"
+  value: "[DISK]file:///opt/hadoop/dfs/data"
+  #  - name: "dfs.client.use.datanode.hostname"
+  #    value: "true"
+  #  - name: "dfs.datanode.use.datanode.hostname"
+  #    value: "true"
+- name: "dfs.permissions.enabled"
+  value: "false"
+yarn_config:
+- name: "yarn.log-aggregation-enable"
+  value: "true"
+- name: "yarn.resourcemanager.recovery.enabled"
+  value: "true"
+- name: "yarn.resourcemanager.store.class"
+  value: "org.apache.hadoop.yarn.server.resourcemanager.recovery.FileSystemRMStateStore"
+- name: "yarn.resourcemanager.fs.state-store.uri"
+  value: "/rmstate"
+- name: "yarn.nodemanager.remote-app-log-dir"
+  value: "/app-logs"
+- name: "yarn.log.server.url"
+  value: "http://{{ groups['namenode'][0] }}:8188/applicationhistory/logs/"
+- name: "yarn.timeline-service.enabled"
+  value: "true"
+- name: "yarn.timeline-service.generic-application-history.enabled"
+  value: "true"
+- name: "yarn.resourcemanager.system-metrics-publisher.enabled"
+  value: "true"
+- name: "yarn.resourcemanager.hostname"
+  value: "{{ groups['namenode'][0] }}"
+- name: "yarn.timeline-service.hostname"
+  value: "{{ groups['namenode'][0] }}"
+- name: "yarn.resourcemanager.address"
+  value: "{{ groups['namenode'][0] }}:8032"
+- name: "yarn.resourcemanager.scheduler.address"
+  value: "{{ groups['namenode'][0] }}:8030"
+- name: "yarn.resourcemanager.resource-tracker.address"
+  value: "{{ groups['namenode'][0] }}:8031"
+mapred_config:
+- name: "yarn.nodemanager.bind-host"
+  value: "0.0.0.0"

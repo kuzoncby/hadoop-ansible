@@ -1,0 +1,7 @@
+---
+# Tasks for hadoop
+
+#- include: config-iptables.yaml
+- include: install-hadoop.yaml
+- include: start-hadoop.yaml
+- include: install-sqoop.yaml

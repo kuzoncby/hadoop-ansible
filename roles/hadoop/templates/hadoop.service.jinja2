@@ -1,0 +1,23 @@
+[Unit]
+Description=Hadoop {{ service_name }} service
+After=syslog.target network.target remote-fs.target nss-lookup.target network-online.target
+Requires=network-online.target
+
+[Service]
+{% if service_name == 'portmap' %}
+    User=root
+    Group=root
+{% else %}
+    User=hdfs
+    Group=hdfs
+{% endif %}
+Type=forking
+ExecStart={{ hadoop_env.hadoop_home }}/bin/{{ service_command }} --config {{ hadoop_env.hadoop_conf_dir }} --daemon start {{ service_name }}
+ExecStop={{ hadoop_env.hadoop_home }}/bin/{{ service_command }} --config {{ hadoop_env.hadoop_conf_dir }} --daemon stop {{ service_name }}
+WorkingDirectory={{ hadoop_env.hadoop_home }}
+TimeoutStartSec=2min
+Restart=on-failure
+PIDFile=/tmp/hadoop-hdfs-{{ service_name }}.pid
+
+[Install]
+WantedBy=multi-user.target

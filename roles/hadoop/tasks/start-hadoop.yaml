@@ -1,0 +1,74 @@
+---
+- name: Enable hadoop namenode service
+  delegate_to: "{{ groups['namenode'][0] }}"
+  service:
+    name: 'hadoop-namenode'
+    state: restarted
+    enabled: yes
+
+- name: Wait for namenode started
+  wait_for:
+    host: "{{ groups['namenode'][0] }}"
+    port: 9870
+
+- name: Enable hadoop datanode service
+  service:
+    name: 'hadoop-datanode'
+    state: restarted
+    enabled: yes
+
+- name: Wait for datanode started
+  wait_for:
+    host: "{{ groups['namenode'][0] }}"
+    port: 9864
+
+- name: Enable hadoop historyserver service
+  delegate_to: "{{ groups['namenode'][0] }}"
+  service:
+    name: 'hadoop-historyserver'
+    state: restarted
+    enabled: yes
+
+  #- name: Wait for history server started
+  #  wait_for:
+  #    host: "{{ groups['namenode'][0] }}"
+  #    port: 19888
+
+- name: Enable hadoop nodemanager service
+  delegate_to: "{{ groups['namenode'][0] }}"
+  service:
+    name: 'hadoop-nodemanager'
+    state: restarted
+    enabled: yes
+
+  #- name: Wait for node manager started
+  #  wait_for:
+  #    host: "{{ groups['namenode'][0] }}"
+  #    port: 8042
+
+- name: Enable hadoop resourcemanager service
+  delegate_to: "{{ groups['namenode'][0] }}"
+  service:
+    name: 'hadoop-resourcemanager'
+    state: restarted
+    enabled: yes
+
+# TODO Confirm resource manager
+#- name: Wait for resource manager started
+#  wait_for:
+#    host: "{{ groups['namenode'][0] }}"
+#    port: 8030
+
+#- name: Enable hadoop nfs3 service
+#  delegate_to: "{{ groups['namenode'][0] }}"
+#  service:
+#    name: 'hadoop-nfs3'
+#    state: restarted
+#    enabled: yes
+#
+#- name: Enable hadoop portmap service
+#  delegate_to: "{{ groups['namenode'][0] }}"
+#  service:
+#    name: 'hadoop-portmap'
+#    state: restarted
+#    enabled: yes

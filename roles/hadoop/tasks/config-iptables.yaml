@@ -1,0 +1,147 @@
+- name: Apply Hadoop Iptables Rule -> ipc-resourcemanager
+  iptables:
+    action: insert
+    chain: INPUT
+    jump: ACCEPT
+    destination_port: 8030
+    protocol: tcp
+
+- name: Apply Hadoop Iptables Rule -> ipc2-resourcemanager
+  iptables:
+    action: insert
+    destination_port: 8031
+    protocol: tcp
+    chain: INPUT
+    jump: ACCEPT
+
+- name: Apply Hadoop Iptables Rule -> ipc3-resourcemanager
+  iptables:
+    action: insert
+    destination_port: 8033
+    protocol: tcp
+    chain: INPUT
+    jump: ACCEPT
+
+- name: Apply Hadoop Iptables Rule -> http-resourcemanager
+  iptables:
+    action: insert
+    destination_port: 8088
+    protocol: tcp
+    chain: INPUT
+    jump: ACCEPT
+
+- name: Apply Hadoop Iptables Rule -> http-historynode
+  iptables:
+    action: insert
+    destination_port: 8480
+    protocol: tcp
+    chain: INPUT
+    jump: ACCEPT
+
+- name: Apply Hadoop Iptables Rule -> rpc-historynode
+  iptables:
+    action: insert
+    destination_port: 8485
+    protocol: tcp
+    chain: INPUT
+    jump: ACCEPT
+
+- name: Apply Hadoop Iptables Rule -> rpc-namenode
+  iptables:
+    action: insert
+    destination_port: 9820
+    protocol: tcp
+    chain: INPUT
+    jump: ACCEPT
+
+- name: Apply Hadoop Iptables Rule -> http-datanode
+  iptables:
+    action: insert
+    destination_port: 9864
+    protocol: tcp
+    chain: INPUT
+    jump: ACCEPT
+
+- name: Apply Hadoop Iptables Rule -> data-datanode
+  iptables:
+    action: insert
+    destination_port: 9866
+    protocol: tcp
+    chain: INPUT
+    jump: ACCEPT
+
+- name: Apply Hadoop Iptables Rule -> ipc-datanode
+  iptables:
+    action: insert
+    destination_port: 9867
+    protocol: tcp
+    chain: INPUT
+    jump: ACCEPT
+
+- name: Apply Hadoop Iptables Rule -> snn-namenode
+  iptables:
+    action: insert
+    destination_port: 9868
+    protocol: tcp
+    chain: INPUT
+    jump: ACCEPT
+
+- name: Apply Hadoop Iptables Rule -> http-namenode
+  iptables:
+    action: insert
+    destination_port: 9870
+    protocol: tcp
+    chain: INPUT
+    jump: ACCEPT
+
+- name: Apply Hadoop Iptables Rule -> history server ipc
+  iptables:
+    action: insert
+    destination_port: 10020
+    protocol: tcp
+    chain: INPUT
+    jump: ACCEPT
+
+- name: Apply Hadoop Iptables Rule -> history server web
+  iptables:
+    action: insert
+    destination_port: 19888
+    protocol: tcp
+    chain: INPUT
+    jump: ACCEPT
+
+- name: Apply Hadoop Iptables Rule -> NFS portmapper
+  iptables:
+    action: insert
+    destination_port: 111
+    protocol: '{{ item }}'
+    chain: INPUT
+    jump: ACCEPT
+  with_items:
+  - tcp
+  - udp
+
+- name: Apply Hadoop Iptables Rule -> NFS Server
+  iptables:
+    action: insert
+    destination_port: 2049
+    protocol: '{{ item }}'
+    chain: INPUT
+    jump: ACCEPT
+  with_items:
+  - tcp
+  - udp
+
+- name: Apply Hadoop Iptables Rule -> MountD
+  iptables:
+    action: insert
+    destination_port: 4242
+    protocol: '{{ item }}'
+    chain: INPUT
+    jump: ACCEPT
+  with_items:
+  - tcp
+  - udp
+
+- name: Save iptables
+  shell: service iptables save

@@ -1,0 +1,21 @@
+- name: Setup Full Hostname
+  hostname:
+    name: '{{ inventory_hostname }}'
+  tags:
+  - before
+
+- name: Install Java
+  yum:
+    name: java-1.8.0-openjdk-devel
+    state: latest
+
+- name: Disable SELinux
+  selinux:
+    policy: targeted
+    state: permissive
+
+- name: Disable firewalld
+  systemd:
+    name: firewalld
+    state: stopped
+    enabled: no

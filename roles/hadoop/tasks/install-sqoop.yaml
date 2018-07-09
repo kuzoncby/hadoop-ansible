@@ -1,0 +1,37 @@
+- name: Unarchive sqoop
+  unarchive:
+    src: '{{ apache_mirror.protocol }}://{{ apache_mirror.url }}/apache/sqoop/1.99.7/sqoop-1.99.7-bin-hadoop200.tar.gz'
+    dest: /tmp
+    remote_src: yes
+
+- name: 'Check {{ sqoop_env.sqoop_home }} exist'
+  stat:
+    path: '{{ sqoop_env.sqoop_home }}'
+  register: sqoop_home_stat
+
+- name: 'Remove old {{ sqoop_env.sqoop_home }}'
+  command: 'rm -rf {{ sqoop_env.sqoop_home }}'
+  when: sqoop_home_stat.stat.exists
+
+- name: 'Move sqoop to {{ sqoop_env.sqoop_home }}'
+  command: 'mv /tmp/sqoop-1.99.7-bin-hadoop200 {{ sqoop_env.sqoop_home }}'
+
+- name: 'Change {{ sqoop_env.sqoop_home }} owner'
+  file:
+    dest: '{{ sqoop_env.sqoop_home }}'
+    owner: hdfs
+    group: hdfs
+    recurse: yes
+
+#- name: Apply sqoop iptables
+#  iptables:
+#    action: insert
+#    destination_port: '{{ item }}'
+#    protocol: tcp
+#    chain: INPUT
+#    jump: ACCEPT
+#  with_items:
+#    - 5050
+#
+#- name: Save iptables
+#  shell: service iptables save

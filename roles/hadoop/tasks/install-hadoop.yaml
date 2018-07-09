@@ -1,0 +1,170 @@
+- name: Add hdfs group
+  group:
+    name: hdfs
+    state: present
+
+- name: Add hdfs user
+  user:
+    name: hdfs
+    comment: Apache Hadoop Distributed File System
+    group: hdfs
+
+- name: Unarchive Hadoop
+  unarchive:
+    src: '{{ apache_mirror.protocol }}://{{ apache_mirror.url }}/apache/hadoop/common/hadoop-3.1.0/hadoop-3.1.0.tar.gz'
+    dest: /tmp
+    remote_src: yes
+
+- name: 'Check {{ hadoop_env.hadoop_home }} exist'
+  stat:
+    path: '{{ hadoop_env.hadoop_home }}'
+  register: hadoop_home_stat
+
+- name: 'Remove old {{ hadoop_env.hadoop_home }}'
+  shell: 'rm -rf {{ hadoop_env.hadoop_home }}'
+  when: hadoop_home_stat.stat.exists
+
+- name: 'Move Hadoop to {{ hadoop_env.hadoop_home }}'
+  command: 'mv /tmp/hadoop-3.1.0 {{ hadoop_env.hadoop_home }}'
+
+- name: 'Change {{ hadoop_env.hadoop_home }} owner'
+  file:
+    dest: '{{ hadoop_env.hadoop_home }}'
+    owner: hdfs
+    group: hdfs
+    recurse: yes
+
+- name: Config hadoop-env.sh
+  template:
+    src: hadoop-env.sh.jinja2
+    dest: '{{ hadoop_env.hadoop_home }}/etc/hadoop/hadoop-env.sh'
+    owner: hdfs
+    group: hdfs
+    mode: '755'
+
+- name: Config hadoop-env.sh
+  template:
+    src: hadoop-env.sh.jinja2
+    dest: /etc/profile.d/hadoop-env.sh
+    mode: '0755'
+
+- name: Config core-site.xml
+  template:
+    src: core-site.xml.jinja2
+    dest: '{{ hadoop_env.hadoop_home }}/etc/hadoop/core-site.xml'
+    owner: hdfs
+    group: hdfs
+
+- name: Config hdfs-site.xml
+  template:
+    src: hdfs-site.xml.jinja2
+    dest: '{{ hadoop_env.hadoop_home }}/etc/hadoop/hdfs-site.xml'
+    owner: hdfs
+    group: hdfs
+
+- name: Config mapred-site.xml
+  template:
+    src: mapred-site.xml.jinja2
+    dest: '{{ hadoop_env.hadoop_home }}/etc/hadoop/mapred-site.xml'
+    owner: hdfs
+    group: hdfs
+
+- name: Config yarn-site.xml
+  template:
+    src: yarn-site.xml.jinja2
+    dest: '{{ hadoop_env.hadoop_home }}/etc/hadoop/yarn-site.xml'
+    owner: hdfs
+    group: hdfs
+
+- name: Config namenode format script
+  template:
+    src: format-namenode.sh.jinja2
+    dest: '{{ hadoop_env.hadoop_home }}/bin/format-namenode.sh'
+    owner: hdfs
+    group: hdfs
+    mode: '755'
+
+- name: Config namenode systemd
+  template:
+    src: hadoop.service.jinja2
+    dest: /etc/systemd/system/hadoop-namenode.service
+  vars:
+    service_command: hdfs
+    service_name: namenode
+
+- name: Config datanode systemd
+  template:
+    src: hadoop.service.jinja2
+    dest: /etc/systemd/system/hadoop-datanode.service
+  vars:
+    service_command: hdfs
+    service_name: datanode
+
+- name: Config history serevice systemd
+  template:
+    src: hadoop.service.jinja2
+    dest: /etc/systemd/system/hadoop-historyserver.service
+  vars:
+    service_command: mapred
+    service_name: historyserver
+
+- name: Config node manager systemd
+  template:
+    src: hadoop.service.jinja2
+    dest: /etc/systemd/system/hadoop-nodemanager.service
+  vars:
+    service_command: yarn
+    service_name: nodemanager
+
+- name: Config resource manager systemd
+  template:
+    src: hadoop.service.jinja2
+    dest: /etc/systemd/system/hadoop-resourcemanager.service
+  vars:
+    service_command: yarn
+    service_name: resourcemanager
+
+- name: Create hadoop log directory
+  file:
+    path: '{{ hadoop_env.hadoop_home }}/logs'
+    owner: hdfs
+    group: hdfs
+    state: directory
+    mode: '755'
+
+- name: Disable nfs service
+  ignore_errors: yes
+  service:
+    name: 'nfs-server'
+    state: stopped
+    enabled: no
+
+- name: Disable rpcbind service
+  ignore_errors: yes
+  service:
+    name: rpcbind
+    state: stopped
+    enabled: no
+
+- name: Config portmap systemd
+  template:
+    src: hadoop.service.jinja2
+    dest: /etc/systemd/system/hadoop-portmap.service
+  vars:
+    service_command: hdfs
+    service_name: portmap
+
+- name: Config nfs3 systemd
+  template:
+    src: hadoop.service.jinja2
+    dest: /etc/systemd/system/hadoop-nfs3.service
+  vars:
+    service_command: hdfs
+    service_name: nfs3
+
+- name: Format namenode
+  pause: prompt='SSH into "{{ groups['namenode'][0] }}" and run format-namenode.sh as hdfs user! Then press ENTER key to continue. Press Ctrl+C and then "a" to abort'
+#
+#- name: Format namenode
+#  delegate_to: "{{ groups['namenode'][0] }}"
+#  shell: {{ hadoop_env.hadoop_home }}/bin/format-namenode.sh
