@@ -10,7 +10,7 @@ Edit [production.ini](./production.ini) and [all.yaml](./group_vars/all.yaml)
 make test
 ```
 
-## Install Hadoop 3
+## Install Hadoop 3.1.0
 
 ```bash
 make install
